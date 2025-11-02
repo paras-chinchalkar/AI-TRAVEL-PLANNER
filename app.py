@@ -1,4 +1,5 @@
 # This si the main file fo streamlit
+import os
 import streamlit as st
 from src.core.planner import TravelPlanner 
 from dotenv import load_dotenv
@@ -13,6 +14,12 @@ with st.form("travel_form"):
     submitted=st.form_submit_button("Generate Itenary")
     if submitted:
         if city and  intrests:
+            # ensure GROQ API key is present before calling into the LLM code
+            if not os.getenv("GROQ_API_KEY"):
+                st.error(
+                    "GROQ_API_KEY is not set. Add the key to your environment or Streamlit Secrets and restart the app."
+                )
+                st.stop()
             planner=TravelPlanner(city,intrests.split(","))
             planner.set_city(city)
             planner.set_intrests(intrests)
@@ -21,4 +28,4 @@ with st.form("travel_form"):
             st.markdown(itenary)
         else:
             st.warning("Please enter both the city and instrests to move forward")
-            
+
